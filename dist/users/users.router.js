@@ -14,6 +14,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var router_1 = require("../common/router");
+var users_model_1 = require("./users.model");
 var UsersRouter = /** @class */ (function (_super) {
     __extends(UsersRouter, _super);
     function UsersRouter() {
@@ -21,7 +22,20 @@ var UsersRouter = /** @class */ (function (_super) {
     }
     UsersRouter.prototype.applyRoutes = function (application) {
         application.get('/users', function (req, resp, next) {
-            resp.json({ message: 'users router' });
+            users_model_1.User.findAll().then(function (users) {
+                resp.json(users);
+                return next();
+            });
+        });
+        application.get('/users/:id', function (req, resp, next) {
+            users_model_1.User.findById(req.params.id).then(function (user) {
+                if (user) {
+                    resp.json(user);
+                    return next();
+                }
+                resp.send(404);
+                return next();
+            });
         });
     };
     return UsersRouter;
