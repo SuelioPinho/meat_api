@@ -8,10 +8,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var restify = __importStar(require("restify"));
+var mongoose = __importStar(require("mongoose"));
 var environment_1 = require("../common/environment");
 var Server = /** @class */ (function () {
     function Server() {
     }
+    Server.prototype.initializeDb = function () {
+        mongoose.Promise = global.Promise;
+        return mongoose.connect(environment_1.environment.db.url, {
+            useMongoClient: true
+        });
+    };
     Server.prototype.initRoutes = function (routers) {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -38,7 +45,9 @@ var Server = /** @class */ (function () {
     Server.prototype.bootstrap = function (routers) {
         var _this = this;
         if (routers === void 0) { routers = []; }
-        return this.initRoutes(routers).then(function () { return _this; });
+        return this.initializeDb().then(function () {
+            return _this.initRoutes(routers).then(function () { return _this; });
+        });
     };
     return Server;
 }());
