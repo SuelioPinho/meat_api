@@ -11,7 +11,7 @@ export class Server {
   initializeDb() {
     (<any>mongoose).Promise = global.Promise
     return mongoose.connect(environment.db.url, {
-      useMongoClient: true
+      
     })
   }
 
