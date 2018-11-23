@@ -11,19 +11,40 @@ class UsersRouter extends ModelRouter<User> {
     })
   }
 
+  findByEmail = (req, resp, next)=>{
+    if (req.query.email) {
+      User.findByEmail(req.query.email)
+          .then(user => {
+            if (user) {
+              return [user]
+
+            } else {
+              return []
+            }
+          })
+          .then(this.renderAll(resp, next))
+          .catch(next)
+
+    } else {
+      next()
+    }
+  }
+
   applyRoutes(application: restify.Server){
 
-    application.get('/users', this.findAll)
+    application.get(`${this.basePath}`, restify.plugins.conditionalHandler([
+      { version: '2.0.0', handler: [this.findByEmail, this.findAll]},
+      { version: '1.0.0', handler: this.findAll}]))
 
-    application.get('/users/:id', [this.validateId, this.findById])
+    application.get(`${this.basePath}/:id`, [this.validateId, this.findById])
 
-    application.post('/users', this.save)
+    application.post(`${this.basePath}`, this.save)
 
-    application.put('/users/:id', [this.validateId, this.replace])
+    application.put(`${this.basePath}/:id`, [this.validateId, this.replace])
 
-    application.patch('/users/:id', [this.validateId, this.update])
+    application.patch(`${this.basePath}/:id`, [this.validateId, this.update])
 
-    application.del('/users/:id', [this.validateId, this.delete])
+    application.del(`${this.basePath}/:id`, [this.validateId, this.delete])
   }
 }
 
